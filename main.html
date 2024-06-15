@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JustCalc - Pagina Principală</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="./firebase.js"></script>
+    <script type="module">
+        import { auth } from './firebase.js';
+
+        document.getElementById('logout').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await auth.signOut();
+                window.location.href = 'index.html';
+            } catch (error) {
+                alert('Error logging out: ' + error.message);
+            }
+        });
+
+        // TODO: Add logic to display user info and subscription status
+    </script>
+</head>
+<body>
+    <h2>Bine ai venit la JustCalc!</h2>
+    <nav>
+        <a href="DobindaCalc.html">Calculator Dobândă</a>
+        <a href="penalitate.html">Calculator Penalitate</a>
+        <a href="admin.html">Panoul Admin</a>
+        <button id="logout">Logout</button>
+    </nav>
+    <div id="user-info">
+        <!-- User info and subscription status will be displayed here -->
+    </div>
+</body>
+</html>

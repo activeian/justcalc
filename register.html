@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JustCalc - Înregistrare</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="./firebase.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script type="module">
+        import { auth, fetchSignInMethodsForEmail } from './firebase.js';
+
+        const stripe = Stripe('pk_test_51HUe07Gc98IqiTtQp8xFPAfH0V8eMYrOZo8G9wE3JfWqxfY1FrSWj9V0F3GxQwoFNoFx1G6QFgfUCzS0bsKFH2mr009NcKPQ9b'); // Cheia publică de testare
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const username = document.getElementById('register-username').value;
+
+            try {
+                const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+                if (signInMethods.length > 0) {
+                    alert('Email-ul este deja în uz. Te rugăm să folosești un alt email.');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:4242/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        lookup_key: 'price_1PRYwNGc98IqiTtQRSJs8tux',
+                        email: email,
+                        username: username,
+                        password: password
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    alert('Error creating Stripe checkout session: ' + errorData.error.message);
+                    return;
+                }
+
+                const session = await response.json();
+                const result = await stripe.redirectToCheckout({ sessionId: session.id });
+                if (result.error) {
+                    alert('Stripe error: ' + result.error.message);
+                }
+            } catch (error) {
+                alert('Error registering user: ' + error.message);
+            }
+        });
+    </script>
+</head>
+<body>
+    <h2>Înregistrare</h2>
+    <form id="register-form">
+        <label for="register-username">Username:</label>
+        <input type="text" id="register-username" name="username" required>
+        <label for="register-email">Email:</label>
+        <input type="email" id="register-email" name="email" required>
+        <label for="register-password">Parola:</label>
+        <input type="password" id="register-password" name="password" required>
+        <button type="submit">Înregistrează-te</button>
+    </form>
+    <a href="index.html">Login</a>
+</body>
+</html>

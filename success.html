@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Succes - JustCalc</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="./firebase.js"></script>
+    <script type="module">
+        import { auth, createUserWithEmailAndPassword, setDoc, doc, db } from './firebase.js';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+            const username = urlParams.get('username');
+            const password = urlParams.get('password');
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                await setDoc(doc(db, "users", user.uid), { email, username, role: "user" });
+                window.location.href = 'main.html';
+            } catch (error) {
+                alert('Error finalizing registration: ' + error.message);
+            }
+        });
+    </script>
+</head>
+<body>
+    <h2>Succes!</h2>
+    <p>Înregistrarea ta a fost finalizată cu succes.</p>
+</body>
+</html>
